@@ -92,12 +92,15 @@ class DeleteDefaultMessages extends Maintenance {
 			$this->waitForReplication();
 			$dbw->ping();
 			$title = Title::makeTitle( $row->page_namespace, $row->page_title );
+			$this->output( "\n* [[$title]]" );
 			$page = $wikiPageFactory->newFromTitle( $title );
-			// FIXME: Deletion failures should be reported, not silently ignored.
-			$delPageFactory->newDeletePage( $page, $user )->deleteUnsafe( 'No longer required' );
+			$status = $delPageFactory->newDeletePage( $page, $user )->deleteUnsafe( 'No longer required' );
+			if ( !$status->isOK() ) {
+				$this->output( " (Failed!)" );
+			}
 		}
 
-		$this->output( "done!\n", 'msg' );
+		$this->output( "\n\ndone!\n", 'msg' );
 	}
 }
 
